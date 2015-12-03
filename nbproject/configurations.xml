@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>src/adbncfs.h</itemPath>
+      <itemPath>src/fileInfoCache.h</itemPath>
+      <itemPath>src/mountInfo.h</itemPath>
+      <itemPath>src/spawn.h</itemPath>
+      <itemPath>src/userInfo.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>src/adbncfs.cpp</itemPath>
+      <itemPath>src/fileinfoCache.cpp</itemPath>
+      <itemPath>src/main.cpp</itemPath>
+      <itemPath>src/mountInfo.cpp</itemPath>
+      <itemPath>src/spawn.cpp</itemPath>
+      <itemPath>src/userInfo.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+      <logicalFolder name="f3"
+                     displayName="Tests for MontPoint Class"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/mountPointTestRunner.cpp</itemPath>
+        <itemPath>tests/testMountPoint.cpp</itemPath>
+        <itemPath>tests/testMountPoint.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1"
+                     displayName="Tests for the ADB NC File System"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/adbncFileSystemTestRunner.cpp</itemPath>
+        <itemPath>tests/testAdbncFileSystem.cpp</itemPath>
+        <itemPath>tests/testAdbncFileSystem.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2"
+                     displayName="Tests for UserInfo Class"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/testUserInfo.cpp</itemPath>
+        <itemPath>tests/testUserInfo.h</itemPath>
+        <itemPath>tests/userInfoTestRunner.cpp</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <itemPath>README.md</itemPath>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <standard>8</standard>
+          <commandlineTool>g++</commandlineTool>
+          <preprocessorList>
+            <Elem>DEBUG</Elem>
+            <Elem>_FILE_OFFSET_BITS=64</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <commandLine>-pthread -lfuse</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="README.md" ex="false" tool="3" flavor2="0">
+      </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f2">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f2</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f3">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f3</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <item path="src/adbncfs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/adbncfs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/fileInfoCache.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/fileinfoCache.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/mountInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/mountInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/spawn.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/spawn.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/userInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/userInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/adbncFileSystemTestRunner.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="tests/mountPointTestRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testAdbncFileSystem.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testAdbncFileSystem.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/testMountPoint.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testMountPoint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/testUserInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testUserInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/userInfoTestRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <standard>8</standard>
+          <preprocessorList>
+            <Elem>_FILE_OFFSET_BITS=64</Elem>
+          </preprocessorList>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <commandLine>-pthread -lfuse</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="README.md" ex="false" tool="3" flavor2="0">
+      </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f2">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f2</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f3">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f3</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <item path="src/adbncfs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/adbncfs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/fileInfoCache.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/fileinfoCache.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/mountInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/mountInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/spawn.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/spawn.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/userInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/userInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/adbncFileSystemTestRunner.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="tests/mountPointTestRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testAdbncFileSystem.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testAdbncFileSystem.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/testMountPoint.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testMountPoint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/testUserInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testUserInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/userInfoTestRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="UnitTest" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <standard>8</standard>
+          <commandlineTool>g++</commandlineTool>
+          <preprocessorList>
+            <Elem>ADBNCTEST</Elem>
+            <Elem>DEBUG</Elem>
+            <Elem>_FILE_OFFSET_BITS=64</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <commandLine>-pthread -lfuse</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="README.md" ex="false" tool="3" flavor2="0">
+      </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f2">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f2</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f3">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f3</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+            <linkerOptionItem>`pkg-config --libs fuse`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <item path="src/adbncfs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/adbncfs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/fileInfoCache.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/fileinfoCache.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/mountInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/mountInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/spawn.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/spawn.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/userInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/userInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/adbncFileSystemTestRunner.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="tests/mountPointTestRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testAdbncFileSystem.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testAdbncFileSystem.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/testMountPoint.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testMountPoint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/testUserInfo.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/testUserInfo.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tests/userInfoTestRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
