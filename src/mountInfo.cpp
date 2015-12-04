@@ -100,25 +100,26 @@ void MountInfo::Entry::parseMountInfo(const char* pcMountLine)
         char acTokens[iLen];
         ::strncpy(acTokens, pcMountLine, iLen);
 
-        char* pch = ::strtok(acTokens, " ");
+        char* pcSave;
+        char* pch = ::strtok_r(acTokens, " ", &pcSave);
         if (pch)
             m_strFileSystem = pch;
 
-        pch = ::strtok(NULL, " ");
+        pch = ::strtok_r(NULL, " ", &pcSave);
         if (pch && ::strcmp(pch, "on") == 0)
         {
-            pch = ::strtok(NULL, " ");
+            pch = ::strtok_r(NULL, " ", &pcSave);
             if (pch)
             {
                 m_strMountPoint = pch;
-                pch = ::strtok(NULL, " ");
+                pch = ::strtok_r(NULL, " ", &pcSave);
                 if (pch && ::strcmp(pch, "type") == 0)
                 {
-                    pch = ::strtok(NULL, " ");
+                    pch = ::strtok_r(NULL, " ", &pcSave);
                     if (pch)
                     {
                         m_strDevType = pch;
-                        pch = ::strtok(NULL, "(");
+                        pch = ::strtok_r(NULL, "(", &pcSave);
                     }
                 }
             }
@@ -126,11 +127,11 @@ void MountInfo::Entry::parseMountInfo(const char* pcMountLine)
 
         if (pch)
         {
-            pch = ::strtok(pch, ",)");
+            pch = ::strtok_r(pch, ",)", &pcSave);
             while (pch != NULL)
             {
                 m_mountOptions.insert(pch);
-                pch = ::strtok (NULL, ",)");
+                pch = ::strtok_r(NULL, ",)", &pcSave);
             }
         }
     }

@@ -85,6 +85,8 @@ Note, that it's recommended to run it as user, not as root.
 
 ## Installing {#installing}
 
+First you need to [DOWNLOAD] the repository and unzip it.
+
 Compile `adbncfs` the usual way:
 
     >  make
@@ -122,3 +124,4 @@ The following [FUSE] callback functions are not yet implemented:
 [BUSYBOX]: http://www.busybox.net/downloads/BusyBox.html "busybox"
 [enable-usb-debug]: http://www.droidviews.com/how-to-enable-developer-optionsusb-debugging-mode-on-devices-with-android-4-2-jelly-bean/ "How to enable usb debugging"
 [how-to-install-busybox]: http://forums.androidcentral.com/software-development-hacking/4446-how-installing-busybox-hand.html "How to install busybox"
+[DOWNLOAD]: http://sourceforge.net/code-snapshots/svn/a/ad/adbncfs/code/adbncfs-code-2-trunk.zip "download"

@@ -279,11 +279,12 @@ static vector<string> tokenize(const string& strData)
     char acTokens[iLen];
     ::strncpy(acTokens, strData.c_str(), iLen);
 
-    char* pch = ::strtok(acTokens, pcDelimiters);
+    char *pcSave;
+    char* pch = ::strtok_r(acTokens, pcDelimiters, &pcSave);
     while (pch != NULL)
     {
         tokens.push_back(pch);
-        pch = ::strtok (NULL, pcDelimiters);
+        pch = ::strtok_r(NULL, pcDelimiters, &pcSave);
     }
 
     return(tokens);

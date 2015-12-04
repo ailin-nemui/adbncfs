@@ -154,22 +154,23 @@ void UserInfo::parseUserInfoString(const char* pcUserInfo)
         char acTokens[iLen];
         ::strncpy(acTokens, pcUserInfo, iLen);
 
-        char* pch = ::strtok(acTokens, pcEqualDelim);
+        char* pcSave;
+        char* pch = ::strtok_r(acTokens, pcEqualDelim, &pcSave);
         if (pch && ::strcmp(pch, pcUid) == 0)
         {
-            pch = ::strtok(NULL, pcEqualDelim);
+            pch = ::strtok_r(NULL, pcEqualDelim, &pcSave);
             if (pch)
             {
                 m_iUid = ::atoi(pch);
-                pch = ::strtok(NULL, pcEqualDelim);
+                pch = ::strtok_r(NULL, pcEqualDelim, &pcSave);
                 const char* pcGid = "gid";
                 if (pch && ::strcmp(pch, pcGid) == 0)
                 {
-                    pch = ::strtok(NULL, pcEqualDelim);
+                    pch = ::strtok_r(NULL, pcEqualDelim, &pcSave);
                     if (pch)
                     {
                         m_iGid = ::atoi(pch);
-                        pch = ::strtok(NULL, pcEqualDelim);
+                        pch = ::strtok_r(NULL, pcEqualDelim, &pcSave);
                     }
                 }
             }
@@ -178,11 +179,11 @@ void UserInfo::parseUserInfoString(const char* pcUserInfo)
         if (pch && ::strcmp(pch, pcGroups) == 0)
         {
             const char* pcCommaDelim = ",";
-            pch = ::strtok(NULL, pcCommaDelim);
+            pch = ::strtok_r(NULL, pcCommaDelim, &pcSave);
             while (pch != NULL)
             {
                 m_Groups.insert(::atoi(pch));
-                pch = ::strtok (NULL, pcCommaDelim);
+                pch = ::strtok_r(NULL, pcCommaDelim, &pcSave);
             }
         }
     }

@@ -52,7 +52,6 @@ clean: .clean-post
 .clean-pre:
 
 .clean-post: .clean-impl
-	-$(DEL_FILE)r $(API_DIR)
 
 # clobber
 clobber: .clobber-post

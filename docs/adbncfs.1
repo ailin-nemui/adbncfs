@@ -1,4 +1,4 @@
-.TH ADBNCFS "1" "1. December 2015" "ADBNCFS version 0.9.0" "User Commands"
+.TH ADBNCFS "1" "1. December 2015" "ADBNCFS version 0.9.1" "User Commands"
 .SH NAME
 ADBNCFS \- filesystem client based on android adb and netcat
 .SH SYNOPSIS
@@ -9,8 +9,8 @@ ADBNCFS \- filesystem client based on android adb and netcat
 .TP
 \fBfusermount \-u mountpoint\fP
 .SH DESCRIPTION
-ADBNCFS (Android Debug Bridge via NetCat FileSystem) is a file system 
-for Linux (and other operating systems with a FUSE implementation, 
+ADBNCFS (Android Debug Bridge via NetCat FileSystem) is a file system
+for Linux (and other operating systems with a FUSE implementation,
 such as Mac OS X or FreeBSD) capable of operating on files on a android
 device using NetCat on the android device. On the local computer where the
 ADBNCFS is mounted, the implementation makes use of the FUSE (Filesystem in
@@ -19,11 +19,12 @@ can seamlessly interact with android files being served over NetCat
 just as if they were local files on his/her computer. On the android device
 the bash shell is used.
 .PP
+.SH OPTIONS
 .SS "generell options:"
 .TP
-\fB\-h\fR   \fB\--help\fR print help
+\fB\-h\fR   \fB\-\-help\fR print help
 .TP
-\fB\-V\fR   \fB\--version\fR print version
+\fB\-V\fR   \fB\-\-version\fR print version
 .PP
 .SS "FUSE options:"
 .TP
