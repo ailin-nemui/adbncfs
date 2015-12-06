@@ -1,2 +1,10 @@
+0.9.1
+ - delete docs/api folder only in make clobber not in make clean
+ - added download url to readme file
+ - increased version number from 0.9.0 to 0.9.1
+ - added options and homepage section to man page
+ - execCommand() is now based on Spawn instead of popen and renamed execProg
+ - fixed bug occasional segfault: was caused by using non thread save version of strtok now using strtok_r
+
 0.9.0
  - Start of adbncfs project.

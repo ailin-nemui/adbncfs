@@ -121,9 +121,12 @@ Spawn::Spawn(const char* const argv[], bool fUseStdErr, bool fWithPath, const ch
 
         if (iRes == -1)
         {
-           // Note: no point writing to stdout here, it has been redirected
-           cerr << "Error: Failed to launch program" << endl;
-           ::exit(1);
+            if (fUseStdErr)
+                cout << "Error: Failed to launch program \"" << argv[0] << "\" Error: " << to_string(errno) << endl;
+            else
+                cerr << "Error: Failed to launch program \"" << argv[0] << "\" Error: " << to_string(errno) << endl;
+
+            ::exit(errno);
         }
     }
     else

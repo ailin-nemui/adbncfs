@@ -2,6 +2,8 @@
 .SH NAME
 ADBNCFS \- filesystem client based on android adb and netcat
 .SH SYNOPSIS
+.SS requirements
+\fBadb(1)\fR must be installed on your host and busybox must be installed on your android device.
 .SS mounting
 .TP
 \fBadbncfs \fBmountpoint\fP [\fIoptions\fP]
@@ -9,8 +11,8 @@ ADBNCFS \- filesystem client based on android adb and netcat
 .TP
 \fBfusermount \-u mountpoint\fP
 .SH DESCRIPTION
-ADBNCFS (Android Debug Bridge via NetCat FileSystem) is a file system
-for Linux (and other operating systems with a FUSE implementation,
+ADBNCFS (Android Debug Bridge via NetCat FileSystem) is a filesystem
+client for Linux (and other operating systems with a FUSE implementation,
 such as Mac OS X or FreeBSD) capable of operating on files on a android
 device using NetCat on the android device. On the local computer where the
 ADBNCFS is mounted, the implementation makes use of the FUSE (Filesystem in
@@ -138,9 +140,14 @@ original encoding of file names (default: UTF-8)
 \fB\-o\fR to_code=CHARSET
 new encoding of the file names (default: ISO-8859-2)
 .PD
+.SH HOMEPAGE
+More information about adbncfs can be found at <\fIhhttp://adbncfs.sourceforge.net/api/html/\fR>.
+
 .SH "AUTHORS"
 .LP
 ADBNCFS has been written by Werner Jäger.
-
+.SH "SEE ALSO"
+.BR adb (1),
+.BR fusermount (1)
 
 

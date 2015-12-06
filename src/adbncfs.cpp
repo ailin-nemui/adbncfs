@@ -50,7 +50,6 @@ using namespace std;
 /** Local and remote adb forward port */
 static const int iForwardPort(4444);
 
-static const char* pcPathSeparator = "/";
 static const char* pcDone = "---eoc---";    // end of command marker
 
 /** Template used to makeTempDir() */
@@ -91,7 +90,7 @@ static UserInfo* pUserInfo = NULL;
 static MountInfo* pMountInfo = NULL;
 
 /** Mutex to synchronize thread access to execCommandViaNetCat() */
-static pthread_mutex_t cmdMutex;
+static pthread_mutex_t ncCmdMutex;
 
 /** Mutex to synchronize thread access to adbnc_open() */
 static pthread_mutex_t openMutex;
@@ -144,7 +143,7 @@ static Spawn& initNetCat()
     {
         ostringstream strForward;
         strForward << iForwardPort;
-        const char* const argv[] = { "/bin/nc", "localhost", strForward.str().c_str(), NULL };
+        const char* const argv[] = { "nc", "localhost", strForward.str().c_str(), NULL };
 
         cout << "--*-- " << "spawn: ";
         for (int i = 0; argv[i]; i++)
@@ -155,7 +154,7 @@ static Spawn& initNetCat()
         }
         cout << endl;
 
-        pNetCat = new Spawn(argv);
+        pNetCat = new Spawn(argv, false, true);
     }
 
     return(*pNetCat);
@@ -212,7 +211,7 @@ static string makeLocalPath(const string& strPath)
 {
     string strLocalPath(strTempDirPath);
     string strRemotePath(strPath);
-    stringReplacer(strRemotePath, pcPathSeparator, "-");
+    stringReplacer(strRemotePath, "/", "-");
     strLocalPath.append(strRemotePath);
     return(strLocalPath);
 }
@@ -233,15 +232,15 @@ static string parent(const string& strPath)
     const size_t uiLen(strParent.length());
 
     /* if strPath == / we are done*/
-    if (uiLen != 1 || strParent[0] != *pcPathSeparator)
+    if (uiLen != 1 || strParent[0] != '/')
     {
         if (uiLen > 0)
         {
             /** strip last slash if there is one */
-            if (strParent[uiLen - 1] == *pcPathSeparator)
+            if (strParent[uiLen - 1] == '/')
                 strParent = strParent.substr(0, uiLen - 1);
 
-            const std::size_t uiPos(strParent.rfind(*pcPathSeparator));
+            const std::size_t uiPos(strParent.rfind('/'));
             if (uiPos != string::npos)
                 strParent = strParent.substr(0, uiPos == 0 ? 1 : uiPos);
 
@@ -314,7 +313,7 @@ static bool fileExists(const char* pcName)
  */
 static deque<string>execCommandViaNetCat(const string& strCommand)
 {
-    ::pthread_mutex_lock(&cmdMutex);
+    ::pthread_mutex_lock(&ncCmdMutex);
 
     DBG("execCommandViaNetCat: " << strCommand);
 
@@ -336,43 +335,97 @@ static deque<string>execCommandViaNetCat(const string& strCommand)
     else
         DBG("output: EMPTY");
 
-    ::pthread_mutex_unlock(&cmdMutex);
+    ::pthread_mutex_unlock(&ncCmdMutex);
 
     return(output);
 }
 
 /**
- * Execute the given command string.
+ * Execute a program.
  *
- * @param strCommand the string to be executed as a command.
+ * if program could not be started of if no pipe could be created. an error
+ * message is printed to stderr and if piError is not null error number is
+ * returned in *piError.
  *
- * @return the queue of lines written to stdout by the executed command.
+ * @param argv an array of pointers to null-terminated strings that represent
+ *        the argument list available to the new program. The first argument,
+ *        by convention, must point to the filename associated with the file
+ *        being executed. The array of pointers must be terminated by a NULL
+ *        pointer.
+ * @param fUseStdErr if true stderr is redirected instead of stdout.
+ *
+ * @return the queue of lines written to stdout respectively stderr by the
+ *         executed program.
  */
-static deque<string> execCommand(const string& strCommand)
+static deque<string> execProg(const char* const argv[], const bool fUseStdErr = false, int* const piError = NULL)
 {
-    DBG("execCommand: " << strCommand);
-
-    deque<string> output;
-    FILE *fp(::popen(strCommand.c_str(), "r"));
-
-    char acBuff[1000];
-    string strTmpString;
-
-    while (::fgets(acBuff, sizeof acBuff, fp) != NULL && !::feof(fp))
+    if (fDebug)
     {
-        strTmpString.assign(acBuff);
-        if (strTmpString.size() >= 1)
-            strTmpString.erase(strTmpString.size() - 1);
-
-        output.push_back(strTmpString);
+        cout << "--*-- ";
+        for (int i = 0; argv[i]; i++)
+        {
+            cerr << argv[i];
+            if (argv[i+1])
+                cout << " ";
+        }
+        cout << endl;
     }
 
-    ::pclose(fp);
+    deque<string> output;
 
-    if (!output.empty())
-        DBG("output: " << output.front());
-    else
-        DBG("output: EMPTY");
+    try
+    {
+        Spawn cmd(argv, fUseStdErr, true);
+
+        string strTmpString;
+        while (!getline(cmd.inStream(), strTmpString).eof())
+        {
+            if (fUseStdErr)
+            {
+                if (strTmpString.find(": Permission denied") != string::npos)
+                {
+                    if (piError)
+                        *piError = -EACCES;
+
+                    break;
+                }
+                else if (strTmpString.find("does not exist") != string::npos)
+                {
+                    if (piError)
+                        *piError = -ENOENT;
+
+                    break;
+                }
+            }
+
+            output.push_back(strTmpString);
+        }
+
+        if (!output.empty())
+            DBG("output: " << output.front());
+        else
+            DBG("output: EMPTY");
+
+        cmd.sendEof();
+
+        int iExitCode(cmd.wait());
+        if (WIFEXITED(iExitCode))
+        {
+            iExitCode = WEXITSTATUS(iExitCode);
+            if (iExitCode == ENOENT)
+            {
+                ERR("Error: program \"" << argv[0] << "\" not found");
+                if (piError)
+                    *piError = iExitCode;
+            }
+        }
+    }
+    catch (const runtime_error& error)
+    {
+        ERR(error.what());
+        if (piError)
+            *piError = -EIO;
+    }
 
     return(output);
 }
@@ -416,23 +469,11 @@ static int adbncPushPullCmd(const bool fPush, const string& strLocalPath, const 
     strCmdPath2.append("'");
 
     const char* argv[5];
-    argv[0] = "/usr/bin/adb";
+    argv[0] = "adb";
     argv[1] = fPush ? "push" : "pull";
     argv[2] = fPush ? strLocalPath.c_str() : strRemotePath.c_str();
     argv[3] = fPush ? strRemotePath.c_str() : strLocalPath.c_str();
     argv[4] = NULL;
-
-    if (fDebug)
-    {
-        cout << "--*-- ";
-        for (int i = 0; argv[i]; i++)
-        {
-            cerr << argv[i];
-            if (argv[i+1])
-                cout << " ";
-        }
-        cout << endl;
-    }
 
     int iRes(adbnc_access(fPush ? parent(strRemotePath).c_str() : strRemotePath.c_str(), fPush ? W_OK : R_OK));
     if (!iRes)
@@ -447,34 +488,7 @@ static int adbncPushPullCmd(const bool fPush, const string& strLocalPath, const 
          *
          * Exit status is unfortunately not useful, it seems to be 256 always.
          */
-        try
-        {
-            Spawn adb(argv, true);
-
-            string strTmpString;
-            getline(adb.inStream(), strTmpString);
-
-            if (strTmpString.find(": Permission denied") != string::npos)
-                iRes = -EACCES;
-            else if (strTmpString.find("does not exist") != string::npos)
-                iRes = -ENOENT;
-
-            if (!strTmpString.empty())
-                DBG("output: " << strTmpString);
-            else
-                DBG("output: EMPTY");
-
-            adb.sendEof();
-
-            int iExitCode(adb.wait());
-            if (WIFEXITED(iExitCode))
-                iExitCode = WEXITSTATUS(iExitCode);
-        }
-        catch (const runtime_error& error)
-        {
-            ERR(error.what());
-            iRes = -EIO;
-        }
+        execProg(argv, true, &iRes);
     }
 
     return(iRes);
@@ -594,14 +608,20 @@ static int androidNetcatStarted()
 {
     int iPid(0);
 
-    ostringstream strCmdStream;
-    strCmdStream << "adb shell su -c busybox ps | grep \"" << androidNetCatStartCommand() << "\"";
-    deque<string> output(execCommand(strCmdStream.str()));
+    const char* const argv[] = { "adb", "shell", "su", "-c", "busybox", "ps", "|", "grep", androidNetCatStartCommand().c_str(), NULL };
 
-    if (!output.empty())
+    deque<string> output(execProg(argv));
+
+    while (output.size() > 0)
     {
-        vector<string> tokens(tokenize(output.front()));
-        iPid = stoi(tokens[0].c_str());
+        if (output.front().find("grep") == string::npos)
+        {
+            vector<string> tokens(tokenize(output.front()));
+            iPid = stoi(tokens[0].c_str());
+            break;
+        }
+        else
+            output.pop_front();
     }
 
     return(iPid);
@@ -618,14 +638,16 @@ static void androidKillNetCat()
 
     if (iPid > 0)
     {
-        ostringstream strCmdStream;
-        strCmdStream << "adb shell su -c busybox kill " << iPid;
-        execCommand(strCmdStream.str());
+        const string strPid(to_string(iPid));
+        const char* const argv[] = { "adb", "shell", "su", "-c", "busybox", "kill", strPid.c_str(), NULL };
+        execProg(argv);
     }
 
     iPid = androidNetcatStarted();
     if (iPid == 0)
         INF("Netcat successfully stopped on android device");
+    else
+        INF("Failed to kill NetCat on android device");
 }
 
 /**
@@ -639,9 +661,8 @@ static int androidStartNetcat()
 {
     if (!androidNetcatStarted())
     {
-        ostringstream strCmdStream;
-        strCmdStream << "adb shell su -c 'nohup " << androidNetCatStartCommand() << " 2>/dev/null 1>/dev/null &'";
-        execCommand(strCmdStream.str());
+        const char* const argv[] = { "adb", "shell", "su", "-c", "busybox", "nohup", androidNetCatStartCommand().c_str(), "2>/dev/null",  "1>/dev/null", "&", NULL };
+        execProg(argv);
     }
 
     const int iStarted(androidNetcatStarted());
@@ -663,14 +684,24 @@ static int isAndroidDeviceConnected()
     int iRes(1);
 
     // check if a android device is connected
-    deque<string> output(execCommand("adb devices"));
-    if (output.size() > 2)
+    int iError(0);
+
+    const char* const argv[] = { "adb", "devices", NULL };
+    deque<string> output(execProg(argv, false, &iError));
+
+    if (!iError)
     {
-        INF("Using android device " << output[output.size() - 2].substr(0, 8));
-        iRes = 0;
+        if (output.size() > 2)
+        {
+            const string strDeviceId(output[output.size() - 2].substr(0, 8));
+
+            if (strDeviceId != "List of ")
+            {
+                INF("Using android device " << strDeviceId);
+                iRes = 0;
+            } // error message already written by adb
+         }  // error message already written by adb
     }
-    else
-        INF("error: no android devices found");
 
     return(iRes);
 }
@@ -690,7 +721,9 @@ static bool isAndroidPortForwarded(const string& strForwardArg)
 {
     bool fRes(false);
 
-    deque<string> output(execCommand("adb forward --list"));
+    const char* const argv[] = { "adb", "forward", "--list", NULL };
+    deque<string> output(execProg(argv));
+
     for(deque<string>::iterator it = output.begin(); it != output.end(); ++it)
     {
         if((*it).find(strForwardArg) != string::npos)
@@ -720,9 +753,8 @@ static int setAndroidPortForwarding()
 
     if (!isAndroidPortForwarded(strForwardArg.str()))
     {
-        ostringstream strCmdStream;
-        strCmdStream << "adb forward " << strForwardArg.str();
-        execCommand(strCmdStream.str());
+        const char* const argv[] = { "adb", "forward", strForwardPort.str().c_str(), strForwardPort.str().c_str(), NULL };
+        execProg(argv);
     }
 
     if (isAndroidPortForwarded(strForwardArg.str()))
@@ -754,9 +786,8 @@ static bool removeAndroidPortForwarding()
 
     if (isAndroidPortForwarded(strForwardArg.str()))
     {
-        ostringstream strCmdStream;
-        strCmdStream << "adb forward --remove " << strForwardPort.str();
-        execCommand(strCmdStream.str());
+        const char* const argv[] = { "adb", "forward", "--remove", strForwardPort.str().c_str(), NULL };
+        execProg(argv);
     }
 
     bool fRet(!isAndroidPortForwarded(strForwardArg.str()));
@@ -773,9 +804,8 @@ static bool removeAndroidPortForwarding()
  */
 static void cleanupTempDir(void)
 {
-    string strRmCmd("rm -rf ");
-    strRmCmd.append(strTempDirPath);
-    execCommand(strRmCmd);
+    const char* const argv[] = { "rm", "-rf", strTempDirPath.c_str(), NULL };
+    execProg(argv);
 }
 
 /**
@@ -794,7 +824,7 @@ static int makeTempDir(void)
     if (pcTempDir)
     {
         strTempDirPath.assign(pcTempDir);
-        strTempDirPath.append(pcPathSeparator);
+        strTempDirPath.append("/");
     }
 
     return(pcTempDir ? 0 : errno);
@@ -813,7 +843,8 @@ static int makeTempDir(void)
  */
 static int queryUserInfo()
 {
-    deque<string> output(execCommand("adb shell busybox id"));
+    const char* const argv[] = { "adb", "shell", "busybox id", NULL };
+    deque<string> output(execProg(argv));
 
     int iRes(!(output.size() == 1));
     if (!iRes && output.front().length() > 5 && output.front()[0] == 'u')
@@ -837,7 +868,8 @@ static int queryUserInfo()
  */
 static int queryMountInfo()
 {
-    deque<string> output(execCommand("adb shell busybox mount"));
+    const char* const argv[] = { "adb", "shell", "busybox mount", NULL };
+    deque<string> output(execProg(argv));
 
     int iRes(!(output.size() > 0));
     if (!iRes)
@@ -947,7 +979,7 @@ void* adbnc_init(struct fuse_conn_info *pConn)
 //    pConn->want &= ~ FUSE_CAP_ASYNC_READ; // clear async read flag
     pConn->want |= FUSE_CAP_EXPORT_SUPPORT; // set . and .. not handled by us
 
-    ::pthread_mutex_init(&cmdMutex, NULL);
+    ::pthread_mutex_init(&ncCmdMutex, NULL);
     ::pthread_mutex_init(&openMutex, NULL);
     ::pthread_mutex_init(&inReleaseDirMutex, NULL);
     ::pthread_cond_init (&inReleaseDirCond, NULL);
@@ -971,7 +1003,7 @@ void adbnc_destroy(void* private_data)
 {
     DBG("adbnc_destroy()");
 
-    ::pthread_mutex_destroy(&cmdMutex);
+    ::pthread_mutex_destroy(&ncCmdMutex);
     ::pthread_mutex_destroy(&openMutex);
     ::pthread_mutex_destroy(&inReleaseDirMutex);
     ::pthread_cond_destroy(&inReleaseDirCond);
@@ -1013,7 +1045,7 @@ int adbnc_statfs(const char *pcPath, struct statvfs* pFst)
 
     int iRes(0);
 
-    if (::strcmp(pcPath, pcPathSeparator) != 0)
+    if (::strcmp(pcPath, "/") != 0)
     {
         // fist get block info
         string strCommand("df -P -B 4096 '");
@@ -1298,8 +1330,8 @@ int adbnc_readdir(const char *pcPath, void *vpBuf, fuse_fill_dir_t filler, off_t
             DBG("entry: " << it->second[i]);
 
             string strFullEntryPath(pcPath);
-            if (strFullEntryPath != pcPathSeparator)
-                strFullEntryPath.append(pcPathSeparator);
+            if (strFullEntryPath != "/")
+                strFullEntryPath.append("/");
 
             strFullEntryPath.append(it->second[i]);
 
@@ -1395,13 +1427,13 @@ int adbnc_readlink(const char *pcPath, char *pcBuf, size_t iSize)
        return -ENOENT;
 
     string strRes(output.front());
-    if (strRes[0] == *pcPathSeparator)
+    if (strRes[0] == '/')
     {
         int iPos(0);
         int iDepth(-1);
         while (pcPath[iPos] != '\0')
         {
-            if (pcPath[iPos++] == *pcPathSeparator)
+            if (pcPath[iPos++] == '/')
                 iDepth++;
         }
 
@@ -1409,7 +1441,7 @@ int adbnc_readlink(const char *pcPath, char *pcBuf, size_t iSize)
         while (iDepth > 0)
         {
             string strDotDot("..");
-            strDotDot.append(pcPathSeparator);
+            strDotDot.append("/");
             strRes.insert(0, strDotDot);
             iDepth--;
         }

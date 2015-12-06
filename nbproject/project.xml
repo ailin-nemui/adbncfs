@@ -31,11 +31,19 @@
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>adb</word>
             <word>adbnc</word>
+            <word>argv</word>
+            <word>blocksize</word>
             <word>errno</word>
             <word>fsync</word>
+            <word>inode</word>
+            <word>istream</word>
             <word>netcat</word>
             <word>noexec</word>
+            <word>ostream</word>
             <word>readlink</word>
+            <word>sdcard</word>
+            <word>stat</word>
+            <word>statvfs</word>
             <word>stderr</word>
             <word>stdin</word>
             <word>stdout</word>
