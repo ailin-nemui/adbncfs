@@ -855,9 +855,11 @@ static int queryUserInfo()
     deque<string> output(execProg(argv));
 
     int iRes(!(output.size() == 1));
+    /*
     if (!iRes && output.front().length() > 5 && output.front()[0] == 'u')
         pUserInfo = new UserInfo(output.front().c_str());
     else
+    */
         INF("Failed to query user info from device");
 
     return(iRes);
