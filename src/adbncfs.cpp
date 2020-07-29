@@ -433,8 +433,6 @@ static deque<string> execProg(const char* const argv[], const bool fUseStdErr = 
 /**
  * Execute a shell command on the android device.
  *
- * The given string command is prefixed with "busybox ".
- *
  * @param strCommand the command to execute.
  *
  * @return the queue of lines written to stdout by the executed command.
@@ -444,7 +442,6 @@ static deque<string> execProg(const char* const argv[], const bool fUseStdErr = 
 static deque<string> adbncShell(const string& strCommand)
 {
     string strActualCommand(strCommand);
-    strActualCommand.insert(0, "busybox ");
     return(execCommandViaNetCat(strActualCommand));
 }
 
@@ -618,7 +615,7 @@ static int androidNetcatStarted()
 {
     int iPid(0);
 
-    const char* const argv[] = { "adb", "shell", "su", "-c", "busybox", "ps", "|", "grep", androidNetCatStartCommand().c_str(), NULL };
+    const char* const argv[] = { "adb", "shell", "ps -A -o pid,cmd", "|", "grep", " nc$", NULL };
 
     deque<string> output(execProg(argv));
 
@@ -649,7 +646,7 @@ static void androidKillNetCat()
     if (iPid > 0)
     {
         const string strPid(to_string(iPid));
-        const char* const argv[] = { "adb", "shell", "su", "-c", "busybox", "kill", strPid.c_str(), NULL };
+        const char* const argv[] = { "adb", "shell", "kill", strPid.c_str(), NULL };
         execProg(argv);
     }
 
@@ -671,7 +668,7 @@ static int androidStartNetcat()
 {
     if (!androidNetcatStarted())
     {
-        const char* const argv[] = { "adb", "shell", "su", "-c", "busybox", "nohup", androidNetCatStartCommand().c_str(), "2>/dev/null",  "1>/dev/null", "&", NULL };
+        const char* const argv[] = { "adb", "shell", "nohup", androidNetCatStartCommand().c_str(), "2>/dev/null",  "1>/dev/null", "&", NULL };
         execProg(argv);
     }
 
@@ -853,7 +850,7 @@ static int makeTempDir(void)
  */
 static int queryUserInfo()
 {
-    const char* const argv[] = { "adb", "shell", "busybox id", NULL };
+    const char* const argv[] = { "adb", "shell", "id", NULL };
     deque<string> output(execProg(argv));
 
     int iRes(!(output.size() == 1));
@@ -878,7 +875,7 @@ static int queryUserInfo()
  */
 static int queryMountInfo()
 {
-    const char* const argv[] = { "adb", "shell", "busybox mount", NULL };
+    const char* const argv[] = { "adb", "shell", "mount", NULL };
     deque<string> output(execProg(argv));
 
     int iRes(!(output.size() > 0));
