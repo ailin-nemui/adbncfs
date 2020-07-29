@@ -595,15 +595,16 @@ static int doStat(const char *pcPath, vector<string>* pOutputTokens = NULL)
 /**
  * Return the command line used to start netcat process on android device.
  *
- * @return nc -ll -p forwardport -e /system/xbin/bash
+ * @return nc -p forwardport -L /system/bin/sh
  * @see androidStartNetcat
  */
-static const string androidNetCatStartCommand()
+static const string &androidNetCatStartCommand()
 {
     ostringstream strCmdStream;
-    strCmdStream << "nc -ll -p " << iForwardPort << " -e /system/xbin/bash";
+    strCmdStream << "nc -p " << iForwardPort << " -L /system/bin/sh";
+    static const string cmd = strCmdStream.str();
 
-    return(strCmdStream.str());
+    return(cmd);
 }
 
 /**
