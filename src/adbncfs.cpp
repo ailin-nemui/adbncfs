@@ -1604,8 +1604,11 @@ int adbnc_fsync(const char* pcPath, int iIsdatasync, struct fuse_file_info* pFi)
 int adbnc_release(const char *pcPath, struct fuse_file_info *pFi)
 {
     DBG("adbnc_release(" << pcPath << ")");
+    int ret = fileStatus.release(pcPath, pFi->fh);
+    string tmp(makeLocalPath(pcPath));
+    ::unlink(tmp.c_str());
 
-    return(fileStatus.release(pcPath, pFi->fh));
+    return(ret);
 }
 
 /**
@@ -1791,7 +1794,8 @@ int adbnc_unlink(const char *pcPath)
 
     DBG("Deleting " << pcPath);
 
-    ::unlink(makeLocalPath(pcPath).c_str());
+    string tmp(makeLocalPath(pcPath));
+    ::unlink(tmp.c_str());
     adbncShell(strCommand);
 
     return(0);
