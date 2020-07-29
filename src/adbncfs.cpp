@@ -448,6 +448,21 @@ static deque<string> adbncShell(const string& strCommand)
     return(execCommandViaNetCat(strActualCommand));
 }
 
+static const string &quotePath(const string &path)
+{
+    static string buffer;
+    string tmp("'");
+    for (string::const_iterator i(path.begin()), end(path.end()); i != end; ++i) {
+	if (*i == '\'')
+	    tmp.append("'\"'\"'");
+	else
+	    tmp.append(1, *i);
+    }
+    tmp.append("'");
+    buffer = tmp;
+    return(buffer);
+}
+
 /**
  * Execute an adb push or pull command with given paths.
  *
@@ -460,13 +475,9 @@ static deque<string> adbncShell(const string& strCommand)
  */
 static int adbncPushPullCmd(const bool fPush, const string& strLocalPath, const string& strRemotePath)
 {
-    string strCmdPath1("'");
-    strCmdPath1.append((fPush ? strLocalPath : strRemotePath));
-    strCmdPath1.append("'");
+    string strCmdPath1(quotePath((fPush ? strLocalPath : strRemotePath)));
 
-    string strCmdPath2("'");
-    strCmdPath2.append((fPush ? strRemotePath : strLocalPath));
-    strCmdPath2.append("'");
+    string strCmdPath2(quotePath((fPush ? strRemotePath : strLocalPath)));
 
     const char* argv[5];
     argv[0] = "adb";
@@ -545,9 +556,8 @@ static int doStat(const char *pcPath, vector<string>* pOutputTokens = NULL)
 
     if (!pOutput)
     {
-        string strCommand("stat -t '");
-        strCommand.append(pcPath);
-        strCommand.append("'");
+        string strCommand("stat -t ");
+        strCommand.append(quotePath(pcPath));
 
         output = adbncShell(strCommand);
         fileCache.putStat(pcPath, output);
@@ -1048,9 +1058,8 @@ int adbnc_statfs(const char *pcPath, struct statvfs* pFst)
     if (::strcmp(pcPath, "/") != 0)
     {
         // fist get block info
-        string strCommand("df -P -B 4096 '");
-        strCommand.append(pcPath);
-        strCommand.append("'");
+        string strCommand("df -P -B 4096 ");
+        strCommand.append(quotePath(pcPath));
         deque<string> output(adbncShell(strCommand));
 
         iRes = (output.size() > 1 ? 0 : -EIO);
@@ -1087,9 +1096,8 @@ int adbnc_statfs(const char *pcPath, struct statvfs* pFst)
         if (!iRes)
         {
             // now get inode info
-            strCommand.assign("df -P -i '");
-            strCommand.append(pcPath);
-            strCommand.append("'");
+            strCommand.assign("df -P -i ");
+            strCommand.append(quotePath(pcPath));
             output = adbncShell(strCommand);
 
             iRes = (output.size() > 1 ? 0 : -EIO);
@@ -1271,9 +1279,9 @@ int adbnc_opendir(const char *pcPath, struct fuse_file_info *pFi)
 
     DBG("adbnc_opendir(" << pcPath << ")");
 
-    string strCommand("ls -1a '");
-    strCommand.append(pcPath);
-    strCommand.append("'");
+    string strCommand("ls -1a ");
+    strCommand.append(quotePath(pcPath));
+    strCommand.append(" 2>/dev/null");
     deque<string> output(adbncShell(strCommand));
 
     if (!output.empty())
@@ -1405,9 +1413,8 @@ int adbnc_readlink(const char *pcPath, char *pcBuf, size_t iSize)
 
     if (!pOutput)
     {
-        string strCommand("readlink -f '");
-        strCommand.append(pcPath);
-        strCommand.append("'");
+        string strCommand("readlink -f ");
+        strCommand.append(quotePath(pcPath));
 
         output = adbncShell(strCommand);
 
@@ -1650,9 +1657,8 @@ int adbnc_utimens(const char *pcPath, const struct timespec ts[2])
 
     fileCache.invalidate(pcPath);
 
-    string command("touch \"");
-    command.append(pcPath);
-    command.append("\"");
+    string command("touch ");
+    command.append(quotePath(pcPath));
 
     adbncShell(command);
 
@@ -1711,9 +1717,8 @@ int adbnc_mkdir(const char *pcPath, mode_t mode)
     DBG("adbnc_mkdir(" << pcPath << ")");
 
     fileCache.invalidate(pcPath);
-    string strCommand("mkdir '");
-    strCommand.append(pcPath);
-    strCommand.append("'");
+    string strCommand("mkdir ");
+    strCommand.append(quotePath(pcPath));
 
     DBG("Making directory " << pcPath);
 
@@ -1725,11 +1730,10 @@ int adbnc_rename(const char *pcFrom, const char *pcTo)
 {
     DBG("adbnc_rename(" << pcFrom << ", " << pcTo << ")");
 
-    string strCommand("mv '");
-    strCommand.append(pcFrom);
-    strCommand.append("' '");
-    strCommand.append(pcTo);
-    strCommand.append("'");
+    string strCommand("mv ");
+    strCommand.append(quotePath(pcFrom));
+    strCommand.append(" ");
+    strCommand.append(quotePath(pcTo));
 
     DBG("Renaming " << pcFrom << " to " << pcTo);
 
@@ -1755,9 +1759,8 @@ int adbnc_rmdir(const char *pcPath)
     DBG("adbnc_rmdir(" << pcPath << ")");
 
     fileCache.invalidate(pcPath);
-    string strCommand("rmdir '");
-    strCommand.append(pcPath);
-    strCommand.append("'");
+    string strCommand("rmdir ");
+    strCommand.append(quotePath(pcPath));
 
     DBG("Removing directory " << pcPath);
 
@@ -1783,9 +1786,8 @@ int adbnc_unlink(const char *pcPath)
 
     fileCache.invalidate(pcPath);
 
-    string strCommand("rm '");
-    strCommand.append(pcPath);
-    strCommand.append("'");
+    string strCommand("rm ");
+    strCommand.append(quotePath(pcPath));
 
     DBG("Deleting " << pcPath);
 
