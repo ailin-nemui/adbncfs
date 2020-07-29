@@ -152,6 +152,7 @@ Spawn::~Spawn()
 void Spawn::sendEof()
 {
     m_pWriteBuf->close();
+    m_pReadBuf->close();
 }
 
 /**
